@@ -1,11 +1,11 @@
 import { Schema, model } from 'mongoose';
+import validator from 'validator';
 import {
   User,
   UserAddress,
   UserFullName,
 } from './userHandling/user.interface';
 
-import validator from 'validator';
 const UserFullNameSchema = new Schema<UserFullName>({
   firstName: {
     type: String,

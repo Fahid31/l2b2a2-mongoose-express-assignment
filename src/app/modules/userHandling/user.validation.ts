@@ -25,7 +25,7 @@ const UserValidationSchema = z.object({
     password: z.string().refine(value => value !== undefined, { message: 'Password is required' }),
     fullName: UserFullNameValidationSchema,
     age: z.number().refine(value => value !== undefined, { message: 'Age is required' }),
-    email: z.string().email().refine(value => value !== undefined, { message: 'Valid email is required' }),
+    email: z.string().email(),
     isActive: z.boolean().refine(value => value !== undefined, { message: 'isActive is required' }),
     hobbies: z.array(z.string()).refine(value => value !== undefined && value.length > 0, { message: 'Hobbies are required' }),
     address: UserAddressValidationSchema,
