@@ -21,6 +21,7 @@ export type TUser = {
   isActive: boolean;
   hobbies: string[];
   address: TUserAddress;
+  isDeleted: boolean;
 };
 
 export type UserMethods = {

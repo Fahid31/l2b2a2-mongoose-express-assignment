@@ -28,9 +28,26 @@ const updateASingleUserFromDB = async (
   userId: number,
   updatedData: UpdateQuery<TUser> | undefined
 ) => {
+  const user = new User();
+  const userExists = await user.isUserExists(userId);
+
+  if (!userExists) {
+    throw new Error("User not found");
+  }
   const result = await User.findOneAndUpdate({ userId }, updatedData, {
     new: true,
   });
+  return result;
+};
+
+const deleteAUserFromDB = async (userId: number) => {
+  const user = new User();
+  const userExists = await user.isUserExists(userId);
+
+  if (!userExists) {
+    throw new Error("User not found");
+  }
+  const result = await User.updateOne({ userId }, { isDeleted: true });
   return result;
 };
 
@@ -39,4 +56,5 @@ export const userServices = {
   getAllUserFromDB,
   getSingleUserFromDB,
   updateASingleUserFromDB,
+  deleteAUserFromDB,
 };

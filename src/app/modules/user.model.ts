@@ -87,6 +87,10 @@ const userSchema = new Schema<TUser, UserModel, UserMethods>({
     type: TUserAddressSchema,
     required: [true, "Address is required"],
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -104,13 +108,26 @@ userSchema.post("save", function (doc, next) {
   next();
 });
 
-userSchema.pre('find',function(next){
-    console.log(this)
+//query middleware 
+userSchema.pre("find", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+// query middleware 
+userSchema.pre("findOne", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+// aggregate middleware
+userSchema.pre('aggregate',function(next){
+    this.pipeline().unshift({$match:{isDeleted:{$ne:true}}})
     next()
   })
 
 userSchema.methods.isUserExists = async function (
-  userId: number
+  userId: number,
 ): Promise<boolean> {
   const existingUser = await User.findOne({ userId });
   return !!existingUser;
