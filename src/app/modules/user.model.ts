@@ -1,12 +1,16 @@
-import { Schema, model } from 'mongoose';
-import validator from 'validator';
+import { Schema, model } from "mongoose";
+import validator from "validator";
 import {
-  User,
-  UserAddress,
-  UserFullName,
-} from './userHandling/user.interface';
+  TUser,
+  TUserAddress,
+  TUserFullName,
+  UserMethods,
+  UserModel,
+} from "./userHandling/user.interface";
+import bcrypt from "bcrypt";
+import config from "../config";
 
-const UserFullNameSchema = new Schema<UserFullName>({
+const TUserFullNameSchema = new Schema<TUserFullName>({
   firstName: {
     type: String,
     required: true,
@@ -19,7 +23,7 @@ const UserFullNameSchema = new Schema<UserFullName>({
   },
 });
 
-const UserAddressSchema = new Schema<UserAddress>({
+const TUserAddressSchema = new Schema<TUserAddress>({
   street: {
     type: String,
     required: true,
@@ -37,7 +41,7 @@ const UserAddressSchema = new Schema<UserAddress>({
   },
 });
 
-const userSchema = new Schema<User>({
+const userSchema = new Schema<TUser, UserModel, UserMethods>({
   userId: {
     type: Number,
     required: true,
@@ -51,10 +55,11 @@ const userSchema = new Schema<User>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   fullName: {
-    type: UserFullNameSchema,
-    required: [true ,'Full Name is required'],
+    type: TUserFullNameSchema,
+    required: [true, "Full Name is required"],
   },
   age: {
     type: Number,
@@ -62,12 +67,12 @@ const userSchema = new Schema<User>({
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: [true, "Email is required"],
     unique: true,
     trim: true,
     validate: {
       validator: (value: string) => validator.isEmail(value),
-      message: '{VALUE} is not valid',
+      message: "{VALUE} is not valid",
     },
   },
   isActive: {
@@ -79,8 +84,35 @@ const userSchema = new Schema<User>({
     required: true,
   },
   address: {
-    type: UserAddressSchema,
-    required: [true,'Address is required'],
+    type: TUserAddressSchema,
+    required: [true, "Address is required"],
   },
 });
-export const UserModel = model<User>('user', userSchema);
+
+userSchema.pre("save", async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds)
+  );
+  next();
+});
+
+userSchema.post("save", function (doc, next) {
+  doc.password = "";
+  next();
+});
+
+userSchema.pre('find',function(next){
+    console.log(this)
+    next()
+  })
+
+userSchema.methods.isUserExists = async function (
+  userId: number
+): Promise<boolean> {
+  const existingUser = await User.findOne({ userId });
+  return !!existingUser;
+};
+export const User = model<TUser, UserModel>("user", userSchema);

@@ -1,18 +1,36 @@
-import { UserModel } from "../user.model";
-import { User } from "./user.interface";
+import { UpdateQuery } from "mongoose";
+import { TUser } from "./user.interface";
+import { User } from "../user.model";
 
-const createUserIntoDB = async (user: User) => {
-  const result = await UserModel.create(user);
+const createUserIntoDB = async (userData: TUser) => {
+  const result = await User.create(userData);
   return result;
 };
 
 const getAllUserFromDB = async () => {
-  const result = await UserModel.find();
+  const result = await User.find().select("-password");
   return result;
 };
 
 const getSingleUserFromDB = async (userId: number) => {
-  const result = await UserModel.findOne({ userId });
+  const user = new User();
+  const userExists = await user.isUserExists(userId);
+
+  if (!userExists) {
+    throw new Error("User not found");
+  }
+
+  const result = await User.findOne({ userId }).select("-password");
+  return result;
+};
+
+const updateASingleUserFromDB = async (
+  userId: number,
+  updatedData: UpdateQuery<TUser> | undefined
+) => {
+  const result = await User.findOneAndUpdate({ userId }, updatedData, {
+    new: true,
+  });
   return result;
 };
 
@@ -20,4 +38,5 @@ export const userServices = {
   createUserIntoDB,
   getAllUserFromDB,
   getSingleUserFromDB,
+  updateASingleUserFromDB,
 };
