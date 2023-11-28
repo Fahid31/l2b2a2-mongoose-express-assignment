@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+const TOrderValidationSchema = z.object({
+    productName: z.string().min(2),
+    price: z.number(),
+    quantity: z.number(),
+  });
+
 const TUserFullNameValidationSchema  = z.object({
     firstName: z
         .string()
@@ -29,7 +35,8 @@ const UserValidationSchema = z.object({
     isActive: z.boolean().refine(value => value !== undefined, { message: 'isActive is required' }),
     hobbies: z.array(z.string()).refine(value => value !== undefined && value.length > 0, { message: 'Hobbies are required' }),
     address: TUserAddressValidationSchema,
-    isDeleted: z.boolean().default(false)
+    isDeleted: z.boolean().default(false),
+    orders: z.array(TOrderValidationSchema).optional(),
 });
 
 export default UserValidationSchema;

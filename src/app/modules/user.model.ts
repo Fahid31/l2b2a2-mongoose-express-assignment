@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import validator from "validator";
 import {
+  TOrder,
   TUser,
   TUserAddress,
   TUserFullName,
@@ -9,6 +10,22 @@ import {
 } from "./userHandling/user.interface";
 import bcrypt from "bcrypt";
 import config from "../config";
+
+const orderSchema = new Schema<TOrder>({
+  productName: {
+    type: String,
+    required: [true, "Product Name is required"],
+    trim: true,
+  },
+  price: {
+    type: Number,
+    required: [true, "Product price is required"],
+  },
+  quantity: {
+    type: Number,
+    required: [true, "Product Quantity is required"],
+  },
+});
 
 const TUserFullNameSchema = new Schema<TUserFullName>({
   firstName: {
@@ -91,6 +108,9 @@ const userSchema = new Schema<TUser, UserModel, UserMethods>({
     type: Boolean,
     default: false,
   },
+  orders:{
+    type:[orderSchema],
+  }
 });
 
 userSchema.pre("save", async function (next) {
@@ -108,26 +128,26 @@ userSchema.post("save", function (doc, next) {
   next();
 });
 
-//query middleware 
+//query middleware
 userSchema.pre("find", function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-// query middleware 
+// query middleware
 userSchema.pre("findOne", function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
 // aggregate middleware
-userSchema.pre('aggregate',function(next){
-    this.pipeline().unshift({$match:{isDeleted:{$ne:true}}})
-    next()
-  })
+userSchema.pre("aggregate", function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
 
 userSchema.methods.isUserExists = async function (
-  userId: number,
+  userId: number
 ): Promise<boolean> {
   const existingUser = await User.findOne({ userId });
   return !!existingUser;

@@ -14,4 +14,10 @@ router.put('/:userId',userController.updateASingleUser);
 
 router.delete('/:userId', userController.deleteAUser);
 
+router.put('/:userId/orders', userController.addProductToOrder);
+
+router.get('/:userId/orders', userController.FetchOrdersForASpecificUser);
+
+router.get('/:userId/orders/total-price', userController.FetchTheOverallPriceOfUsersOrder);
+
 export const userRoute = router;

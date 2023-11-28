@@ -1,5 +1,11 @@
 import { Model } from "mongoose";
 
+export type TOrder = {
+  productName: string;
+  price: number;
+  quantity: number;
+};
+
 export type TUserAddress = {
   street: string;
   city: string;
@@ -22,6 +28,7 @@ export type TUser = {
   hobbies: string[];
   address: TUserAddress;
   isDeleted: boolean;
+  orders?:TOrder[]
 };
 
 export type UserMethods = {
