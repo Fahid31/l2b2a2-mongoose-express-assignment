@@ -12,7 +12,7 @@ app.use('/api/users', userRoute)
 
 
 app.get("/", (req: Request, res: Response) => {
-  res.send('Hello Pritibi');
+  res.send('Welcome to the developers world !!');
 });
 
 export default app;

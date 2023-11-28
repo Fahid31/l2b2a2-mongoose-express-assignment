@@ -64,7 +64,7 @@ const addProductToOrderDB = async (userId: number, orderData: TOrder) => {
     { $push: { orders: orderData } },
     { new: true }
   );
-  console.log(result);
+//   console.log(result);
   return result;
 };
 
